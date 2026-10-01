@@ -1,0 +1,13 @@
+{
+  "name": "Yetim — report from anywhere",
+  "short_name": "Yetim",
+  "description": "An offline-first field issue tracker that works anywhere, even where there's no signal.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f3efe6",
+  "theme_color": "#083633",
+  "lang": "en",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ReportCategory {
+  WATER_POINT
+  EQUIPMENT
+  SERVICE_INTERRUPTION
+  SAFETY_CONCERN
+  MAINTENANCE
+  OTHER
+
+  @@map("report_category")
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+
+  @@map("priority")
+}
+
+enum ReportStatus {
+  DRAFT
+  SUBMITTED
+  ASSIGNED
+  IN_PROGRESS
+  RESOLVED
+  REJECTED
+
+  @@map("report_status")
+}
+
+model Report {
+  id               String         @id @default(uuid())
+  clientId         String         @unique @map("client_id")
+  category         ReportCategory
+  description      String
+  location         String
+  priority         Priority
+  status           ReportStatus
+  reportedAt       DateTime       @map("reported_at")
+  reportedTimezone String?        @map("reported_timezone")
+  serverReceivedAt DateTime       @map("server_received_at")
+  version          Int            @default(1)
+  reporterName     String?        @map("reporter_name")
+  assigneeName     String?        @map("assignee_name")
+  latitude         Float?
+  longitude        Float?
+  accuracyMeters   Float?         @map("accuracy_meters")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  history          ReportHistory[]
+  attachments      Attachment[]
+
+  @@index([status])
+  @@index([priority])
+  @@index([category])
+  @@index([reportedAt])
+  @@index([updatedAt])
+  @@index([reporterName])
+  @@map("reports")
+}
+
+model ReportHistory {
+  id        String   @id @default(uuid())
+  reportId  String   @map("report_id")
+  report    Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  action    String
+  actorRole String   @map("actor_role")
+  actorName String?  @map("actor_name")
+  fromValue String?  @map("from_value")
+  toValue   String?  @map("to_value")
+  message   String
+  sequence  Int
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([reportId, sequence])
+  @@index([reportId, createdAt])
+  @@map("report_history")
+}
+
+model Attachment {
+  id                 String   @id @default(uuid())
+  reportId           String   @map("report_id")
+  report             Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  clientAttachmentId String   @unique @map("client_attachment_id")
+  fileName           String   @map("file_name")
+  mimeType           String   @map("mime_type")
+  sizeBytes          Int      @map("size_bytes")
+  checksum           String
+  content            Bytes
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  @@unique([reportId, checksum])
+  @@index([reportId])
+  @@map("attachments")
+}
+
+model ProcessedOperation {
+  clientOperationId String   @id @map("client_operation_id")
+  reportClientId    String   @map("report_client_id")
+  responseJson      Json     @map("response_json")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  @@index([reportClientId])
+  @@map("processed_operations")
+}
+
+model SyncSession {
+  id            String    @id @default(uuid())
+  startedAt     DateTime  @default(now()) @map("started_at")
+  completedAt   DateTime? @map("completed_at")
+  successCount  Int       @default(0) @map("success_count")
+  failureCount  Int       @default(0) @map("failure_count")
+  conflictCount Int       @default(0) @map("conflict_count")
+  actorRole     String?   @map("actor_role")
+
+  @@index([startedAt])
+  @@map("sync_sessions")
+}
