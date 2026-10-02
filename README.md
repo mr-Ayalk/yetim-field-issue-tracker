@@ -271,6 +271,12 @@ See [docs/assumptions.md](docs/assumptions.md). The short version: the server is
 
 ## Known Limitations
 
+> **Assessment limitation:** Authentication is intentionally omitted because the
+> exercise does not require it. Role simulation is implemented through the
+> `x-yetim-role` header for deterministic demonstration. A production deployment
+> would replace this mechanism with authenticated sessions and server-side
+> identity/authorization.
+
 - The role is a header, not a login. Anyone who can call the API can send a coordinator header while demo mode is on.
 - The client merges up to 100 server reports at a time.
 - Photos are stored in PostgreSQL and capped at 1.2 MB after compression.
