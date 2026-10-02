@@ -38,6 +38,7 @@ cp .env.example .env
 npm run db:setup
 npm run dev
 
+```
 ## Screenshots
 
 
