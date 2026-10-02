@@ -178,14 +178,23 @@ Do not commit `.env`.
 
 ```bash
 npm install
+copy .env.example .env
 ```
+
+On Git Bash use `cp .env.example .env`. Then edit `.env` and set `DATABASE_URL` to your Neon or local Postgres URL. Prisma does not read `.env.example`.
 
 `npm install` runs `prisma generate`. If the client is missing after a partial install, run `npm run db:generate`.
 
 ## Database Setup
 
 ```bash
-npx prisma migrate deploy
+npm run db:setup
+```
+
+That applies the migration and loads the demo reports. You can also run the two steps yourself:
+
+```bash
+npm run db:migrate
 npm run db:seed
 ```
 
