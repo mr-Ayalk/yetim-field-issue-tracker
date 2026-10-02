@@ -1,0 +1,3 @@
+{
+  "buildCommand": "prisma generate && node scripts/prepare-database.mjs && next build"
+}

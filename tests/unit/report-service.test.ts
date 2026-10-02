@@ -4,6 +4,7 @@ import { MemoryReportRepository } from "@/lib/server/memory-repository";
 import {
   changeStatus,
   createReport,
+  ensureDemoSeed,
   getHistory,
   updateReport,
   type RequestContext,
@@ -269,5 +270,15 @@ describe("report workflow and integrity", () => {
     expect(resubmitted.ok).toBe(true);
     if (!resubmitted.ok) return;
     expect(resubmitted.data.status).toBe("SUBMITTED");
+  });
+
+  it("loads demonstration reports when the database is empty", async () => {
+    const repo = new MemoryReportRepository();
+    await ensureDemoSeed(repo);
+    const first = await repo.list({ page: 1, pageSize: 20, sort: "reportedAt", direction: "desc" });
+    expect(first.total).toBe(7);
+    await ensureDemoSeed(repo);
+    const second = await repo.list({ page: 1, pageSize: 20, sort: "reportedAt", direction: "desc" });
+    expect(second.total).toBe(7);
   });
 });

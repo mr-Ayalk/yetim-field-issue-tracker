@@ -25,7 +25,15 @@ if (existsSync(envPath)) {
 
 async function main() {
   const prisma = new PrismaClient();
+  const onlyIfEmpty = process.argv.includes("--if-empty");
   try {
+    if (onlyIfEmpty) {
+      const existing = await prisma.report.count();
+      if (existing > 0) {
+        console.log(`Database already has ${existing} reports. Seed skipped.`);
+        return;
+      }
+    }
     const count = await new PrismaReportRepository(prisma).resetAndSeed(buildSeedReports());
     console.log(`Seeded ${count} Yetim demonstration reports.`);
   } finally {

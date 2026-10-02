@@ -395,6 +395,17 @@ export async function addAttachment(
   return ok(saved.attachment, saved.idempotent ? { idempotent: true } : undefined);
 }
 
+export async function ensureDemoSeed(repo: ReportRepository): Promise<void> {
+  if (process.env.YETIM_DEMO_MODE === "false") return;
+  try {
+    const existing = await repo.list({ page: 1, pageSize: 1, sort: "updatedAt", direction: "desc" });
+    if (existing.total > 0) return;
+    await repo.resetAndSeed(buildSeedReports());
+  } catch {
+    // A parallel request may have seeded already, or the tables are not migrated yet.
+  }
+}
+
 export async function resetDemoData(repo: ReportRepository, ctx: RequestContext) {
   if (process.env.YETIM_DEMO_MODE === "false") {
     return fail(404, "REPORT_NOT_FOUND", "Demo controls are disabled.");

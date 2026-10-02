@@ -246,13 +246,17 @@ Follow [docs/manual-qa.md](docs/manual-qa.md). The shortest reviewer path is: da
 
 The app is a standard Next.js deployment in front of managed PostgreSQL (for example Vercel and Neon, or any host that can run `next start` and reach `DATABASE_URL`).
 
+The local seed writes into whichever database is in `.env`. Vercel does not read that file. In the Vercel project, set `DATABASE_URL` to the same Neon connection string, then redeploy. The build applies migrations and, when that database has no reports, loads the seven demonstration reports. A later deploy does not replace reports that are already there. The first report list does the same fill if the database is still empty.
+
+Leave `YETIM_DEMO_MODE` unset, or set it to `true`, on the demo deployment. `false` turns off demo seed and the Settings reset.
+
 ```bash
 npx prisma migrate deploy
 npm run build
 npm start
 ```
 
-Set `YETIM_DEMO_MODE=false` in a real deployment. Health is `/api/health`. Readiness, including the database, is `/api/ready`.
+Health is `/api/health`. Readiness, including the database, is `/api/ready`.
 
 ## Production Readiness
 

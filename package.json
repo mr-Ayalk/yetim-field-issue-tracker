@@ -5,7 +5,7 @@
   "description": "An offline-first field issue tracker that works anywhere, even where there's no signal.",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && node scripts/prepare-database.mjs && next build",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
