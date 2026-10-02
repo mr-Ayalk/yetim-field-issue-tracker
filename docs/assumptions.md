@@ -4,7 +4,7 @@ The SRS assumptions are followed. These are the decisions that would otherwise b
 
 ## From the SRS
 
-- Online means `navigator.onLine` is not false and `GET /api/ready` returns success. The ready check includes the database.
+- Online means the app server answered `GET /api/ready`. `navigator.onLine` is only a hint and cannot mark the app offline by itself. A database that is still waking returns 503 and stays reachable; synchronization waits until the same check returns 200.
 - A refresh or a reopened browser must still show pending local work. IndexedDB is that store.
 - Duplicate prevention is an immutable client UUID plus a unique server constraint. Text similarity is not used.
 - A failed operation does not roll back an earlier acknowledgement.

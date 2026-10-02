@@ -75,15 +75,22 @@ export function Shell({ children }: { children: React.ReactNode }) {
                   </option>
                 ))}
               </select>
-              <button
-                type="button"
-                data-testid="offline-toggle"
+              <span
+                data-testid="connection-status"
                 className="rounded-lg border border-line bg-card px-3 py-2 text-sm font-medium"
-                aria-pressed={yetim.simulatedOffline}
-                onClick={() => yetim.setSimulatedOffline(!yetim.simulatedOffline)}
+                role="status"
               >
                 {yetim.simulatedOffline ? "Simulated offline" : yetim.online ? "Online" : "Offline"}
-              </button>
+              </span>
+              {yetim.simulatedOffline ? (
+                <button
+                  type="button"
+                  className="rounded-lg border border-line bg-card px-3 py-2 text-sm font-medium"
+                  onClick={() => yetim.setSimulatedOffline(false)}
+                >
+                  Use network
+                </button>
+              ) : null}
             </div>
           </div>
           {!yetim.online || yetim.simulatedOffline ? (

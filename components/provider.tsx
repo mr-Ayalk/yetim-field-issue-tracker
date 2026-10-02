@@ -11,7 +11,7 @@ import {
   useState,
 } from "react";
 import type { Category, Priority, Role, Status } from "@/lib/domain/constants";
-import { apiFetch, probeReady } from "@/lib/client/api";
+import { apiFetch, probeConnection } from "@/lib/client/api";
 import { getDb, type LocalAttachment, type LocalOperation, type LocalReport } from "@/lib/offline/db";
 import { blobToBase64, prepareEvidence, sha256 } from "@/lib/offline/images";
 import { synchronizeQueue } from "@/lib/offline/sync-engine";
@@ -109,6 +109,7 @@ function BrowserState({ children }: { children: React.ReactNode }) {
   const roleRef = useRef(role);
   const actorRef = useRef(actor);
   const offlineRef = useRef(simulatedOffline);
+  const probeGeneration = useRef(0);
   roleRef.current = role;
   actorRef.current = actor;
   offlineRef.current = simulatedOffline;
@@ -128,6 +129,10 @@ function BrowserState({ children }: { children: React.ReactNode }) {
     const storedOffline = window.localStorage.getItem("yetim.offline") === "1";
     if (storedRole) setRoleState(storedRole);
     if (storedActor) setActorState(storedActor);
+    if (storedOffline) {
+      offlineRef.current = true;
+      setOnline(false);
+    }
     setSimulatedState(storedOffline);
     void recoverInterrupted();
     void readMeta("lastSuccess").then(setLastSuccess);
@@ -164,11 +169,13 @@ function BrowserState({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const runSync = useCallback(async (manual: boolean) => {
+  const runSync = useCallback(async (manual: boolean, alreadyReady = false) => {
     if (lock.current || offlineRef.current) return;
-    const reachable = await probeReady(false);
-    setOnline(reachable);
-    if (!reachable) return;
+    if (!alreadyReady) {
+      const connection = await probeConnection(false);
+      if (!offlineRef.current) setOnline(connection.reachable);
+      if (!connection.ready) return;
+    }
     lock.current = true;
     setSyncing(true);
     let fault = window.sessionStorage.getItem("yetim.fault");
@@ -260,10 +267,23 @@ function BrowserState({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let stopped = false;
+    let wakeTimer = 0;
+    const tabHidden = () => document.visibilityState === "hidden";
     const tick = async () => {
-      const reachable = await probeReady(offlineRef.current);
-      if (!stopped) setOnline(reachable);
-      if (reachable) await runSync(false);
+      // A hidden tab can fail an in-flight request. Ignore that; probe again when the tab is visible.
+      if (tabHidden()) return;
+      const generation = ++probeGeneration.current;
+      const connection = await probeConnection(offlineRef.current);
+      if (stopped || generation !== probeGeneration.current || offlineRef.current || tabHidden()) return;
+      setOnline(connection.reachable);
+      if (connection.ready) {
+        await runSync(false, true);
+        return;
+      }
+      if (connection.reachable) {
+        window.clearTimeout(wakeTimer);
+        wakeTimer = window.setTimeout(() => void tick(), 5_000);
+      }
     };
     void tick();
     const onWake = () => void tick();
@@ -273,10 +293,12 @@ function BrowserState({ children }: { children: React.ReactNode }) {
     const timer = window.setInterval(() => void tick(), 30_000);
     return () => {
       stopped = true;
+      probeGeneration.current += 1;
       window.removeEventListener("online", onWake);
       window.removeEventListener("focus", onWake);
       document.removeEventListener("visibilitychange", onWake);
       window.clearInterval(timer);
+      window.clearTimeout(wakeTimer);
     };
   }, [runSync]);
 
@@ -305,11 +327,12 @@ function BrowserState({ children }: { children: React.ReactNode }) {
       window.localStorage.setItem("yetim.actor", name);
     },
     setSimulatedOffline: (next) => {
+      probeGeneration.current += 1;
       setSimulatedState(next);
       offlineRef.current = next;
       window.localStorage.setItem("yetim.offline", next ? "1" : "0");
       if (next) setOnline(false);
-      else void probeReady(false).then(setOnline);
+      else void probeConnection(false).then((connection) => setOnline(connection.reachable));
     },
     armFault: (fault) => {
       if (!fault) {

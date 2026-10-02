@@ -56,4 +56,4 @@ There is no account system. The browser sends `x-yetim-role` and `x-yetim-actor`
 
 `GET /api/health` reports that the process is alive. It does not touch the database.
 
-`GET /api/ready` runs `SELECT 1`. The browser treats a successful ready response, together with `navigator.onLine`, as permission to try synchronization. `navigator.onLine` alone is never enough, and a started request is never shown as synchronized.
+`GET /api/ready` runs `SELECT 1`. Any HTTP response means the network and the app server are up, so the offline banner stays hidden. Synchronization starts only after that check returns 200. `navigator.onLine` alone is never enough to show offline or to send, and a started request is never shown as synchronized.

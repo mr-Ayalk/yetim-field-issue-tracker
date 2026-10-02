@@ -66,7 +66,9 @@ describe("local persistence", () => {
     resetDbForTests();
     const blocked = getDb();
     blocked.reports.put = (() =>
-      Promise.reject(new DOMException("quota", "QuotaExceededError"))) as typeof blocked.reports.put;
+      Promise.reject(
+        new DOMException("quota", "QuotaExceededError"),
+      )) as unknown as typeof blocked.reports.put;
     await expect(
       saveDraft({
         clientId: crypto.randomUUID(),
