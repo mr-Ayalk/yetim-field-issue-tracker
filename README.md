@@ -30,6 +30,14 @@ Yetim writes the report to this device first. The screen can say Pending immedia
 - Optional coordinates and a photo, neither of which is required to save the report.
 - Demo controls for simulated offline, timeout, 503, validation failure, and conflict.
 
+## Reviewer Quick Start
+
+```bash
+npm install
+cp .env.example .env
+npm run db:setup
+npm run dev
+
 ## Screenshots
 
 
