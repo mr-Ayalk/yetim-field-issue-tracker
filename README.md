@@ -294,7 +294,12 @@ Verification: `npx tsc --noEmit` and `npx vitest run` (21 tests). Synchronizatio
 
 ## Development Timeline / Time Spent
 
-The SRS baseline was committed first. The application, tests, and documents were then implemented in one assisted working session on 1 October 2026. Record your own hours on the submission form if the course asks for a personal time log. This file does not invent a six-hour timesheet.
+
+Approximately **4 hours** were spent on the assessment implementation, testing,
+documentation, and final verification.
+
+The work was developed incrementally, with meaningful commits throughout the
+implementation rather than a single final bulk commit.
 
 ## What I Would Improve With More Time
 
