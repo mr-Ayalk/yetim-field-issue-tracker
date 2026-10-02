@@ -271,11 +271,11 @@ See [docs/assumptions.md](docs/assumptions.md). The short version: the server is
 
 ## Known Limitations
 
-> **Assessment limitation:** Authentication is intentionally omitted because the
-> exercise does not require it. Role simulation is implemented through the
-> `x-yetim-role` header for deterministic demonstration. A production deployment
-> would replace this mechanism with authenticated sessions and server-side
-> identity/authorization.
+- **Assessment limitation:** Authentication is intentionally omitted because the
+- exercise does not require it. Role simulation is implemented through the
+- `x-yetim-role` header for deterministic demonstration. A production deployment
+- would replace this mechanism with authenticated sessions and server-side
+- identity/authorization.
 
 - The role is a header, not a login. Anyone who can call the API can send a coordinator header while demo mode is on.
 - The client merges up to 100 server reports at a time.
@@ -307,6 +307,12 @@ What was rejected: a second backend, fuzzy duplicate detection, silent conflict 
 
 Verification: `npx tsc --noEmit` and `npx vitest run` (21 tests). Synchronization and idempotency were reviewed against the failure cases in `docs/synchronization.md`, not only the happy path. Final engineering judgment for submission stays with the author. AI output was not treated as proof that a requirement is met.
 
+
+All generated code was reviewed against the SRS, tested, and modified where
+necessary. The final architecture, implementation decisions, debugging,
+verification, and submission remain my responsibility.
+
+
 ## Development Timeline / Time Spent
 
 
@@ -324,6 +330,19 @@ I would run the Playwright conflict, retry, and full-workflow scenarios against 
 
 [docs/requirements-traceability.md](docs/requirements-traceability.md) maps each tracked requirement to code, tests, and an acceptance step. The authoritative baseline is the SRS PDF in `docs/`.
 
+
+## Core Engineering Decisions
+
+- **Offline-first:** reports are persisted locally before synchronization.
+- **Durable outbox:** server-bound operations survive refresh and temporary outages.
+- **Idempotency:** immutable client IDs prevent duplicate server creates during retries.
+- **Per-operation acknowledgement:** partial synchronization does not lose successful work.
+- **Optimistic concurrency:** stale updates become explicit conflicts instead of silent overwrites.
+- **Append-only history:** operational changes remain auditable.
+- **Server authority after acknowledgement:** synchronized state comes from server acknowledgement;
+  unsynchronized work remains safely owned by the local device.
+
+  
 ## Submission Information
 
 - Product: የትም / Yetim
