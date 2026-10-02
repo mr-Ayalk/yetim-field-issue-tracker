@@ -32,15 +32,17 @@ Yetim writes the report to this device first. The screen can say Pending immedia
 
 ## Screenshots
 
-The interface is the running app. Capture these after `npm run dev` if the submission package needs images:
 
 1. Dashboard with the offline banner.
-2. New report form on a narrow viewport.
-3. Sync Center showing a pending operation.
-4. Report case file with history.
-5. Workbench columns.
 
-No screenshot in this repository is a mock of data the app cannot produce.
+<img width="1365" height="631" alt="image" src="https://github.com/user-attachments/assets/3d5ae333-01ee-4863-b5e8-bae3e3d78394" />
+
+2. New report form on a narrow viewport.
+
+<img width="1365" height="629" alt="image" src="https://github.com/user-attachments/assets/43fe701b-dd92-4797-a6ed-1ab40a3a4de7" />
+<img width="1365" height="626" alt="image" src="https://github.com/user-attachments/assets/fbd9c024-38de-4e08-836b-39c875c2f29c" />
+
+
 
 ## Architecture
 
